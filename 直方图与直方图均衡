@@ -1,0 +1,61 @@
+import cv2 as cv
+import numpy as np
+from matplotlib import pyplot as plt
+
+def imageReverse(img):     //实现图像反转（反色） ，用于增强嵌入图像暗色区域中白色或者灰色细节，特别是黑色面积在尺寸上占据主导地位
+    cv.namedWindow("gray", cv.WINDOW_AUTOSIZE)
+    height = img.shape[0]
+    width = img.shape[1]
+    for i in range(height):
+        for j in range(width):
+            pv = img[i,j]
+            img[i,j]=255-pv
+    cv.imshow("gray",img)
+
+def hist_demo(img):      //创建直方图
+    mean = 0
+    #height = img.shape[0]
+    #width = img.shape[1]
+    #cv.imshow("1",img)
+    plt.hist(img.ravel(),256,[0,256],normed=True)    //要导入的包为：from matplotlib import pyplot as plt
+                                                     //hist的第一个参数为要建立直方图的x轴数据：用一维数组表示。ravel()表示把二维极其以上维度的数组转化为一维数组
+                                                     //256：256表示直方图上共可显示256个条形柱
+                                                     //[0,256]:表示x轴的范围是0-256
+                                                     //normed：表示是否归一化，默认为False
+    plt.show("hist")
+
+
+def zhifangtu(image_gray):    //显示直方图的函数
+    cv.namedWindow("gray", cv.WINDOW_AUTOSIZE)
+    #print(image_gray.shape)
+    cv.imshow("gray", image_gray)
+    hist_demo(image_gray)
+    #pixel = np.array(image1)
+    #print(pixel)
+    
+def enumerlize(img):    //直方图均衡
+    n=np.zeros([256])
+    height=img.shape[0]
+    width = img.shape[1]
+    p=0;
+    for row in range(height):    //获取每个像素出现的个数
+        for col in range(width):
+            n[img[row,col]]+=1    
+            
+    for i in range(256):        //使用灰度映射函数计算Sk，k=0,1,2...L-1
+        p+=n[i]
+        n[i]=int(round(p*255/height/width))
+
+    for row in range(height):   //将原像素映射为计算后的Sk
+        for col in range(width):
+            img[row,col]=n[img[row,col]]
+    zhifangtu(img)
+    
+  if __name__=='__main__':     //程序开始入口
+    image1 = cv.imread("img\\DIP3E_Original_Images_CH03\\15.tif",1)
+    image_gray = cv.cvtColor(image1,cv.COLOR_BGR2GRAY)
+    cv.imshow("1",image1)
+    #imageReverse(image_gray)
+    enumerlize(image_gray)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
